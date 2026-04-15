@@ -1,26 +1,69 @@
 @import "tailwindcss";
+@import "@xyflow/react/dist/style.css";
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --border: #e2e8f0;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --accent: #f0f9ff;
+  --destructive: #ef4444;
+  --ring: #3b82f6;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-destructive: var(--destructive);
+  --color-ring: var(--ring);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Animated traffic edge dash animation */
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+/* Strip default React Flow node chrome from group containers */
+.react-flow__node-group {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+/* Ensure connection handles are always interactive and above other node content */
+.react-flow__handle {
+  z-index: 50 !important;
+  pointer-events: all !important;
+}
+
+.react-flow__node > div {
+  pointer-events: all;
+}
+
+.react-flow__node .react-flow__handle {
+  pointer-events: all !important;
+  cursor: crosshair;
+}
+
+.animated-edge-path {
+  animation: dash-flow 0.6s linear infinite;
 }

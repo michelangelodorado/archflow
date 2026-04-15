@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Diagram {
+  id           String   @id @default(uuid())
+  title        String
+  description  String   @default("")
+  thumbnailUrl String?
+  tags         String[] @default([])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  versions DiagramVersion[]
+
+  @@index([updatedAt])
+  @@index([title])
+}
+
+model DiagramVersion {
+  id        String   @id @default(uuid())
+  diagramId String
+  version   Int
+  content   Json     // Canonical diagram JSON
+  message   String   @default("")
+  createdAt DateTime @default(now())
+
+  diagram Diagram @relation(fields: [diagramId], references: [id], onDelete: Cascade)
+
+  @@unique([diagramId, version])
+  @@index([diagramId, createdAt])
+}
