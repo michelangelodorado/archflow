@@ -12,6 +12,29 @@
   --accent: #f0f9ff;
   --destructive: #ef4444;
   --ring: #3b82f6;
+  --card: #ffffff;
+  --card-foreground: #1e293b;
+  --card-muted: #64748b;
+  --canvas: #f8fafc;
+  --canvas-dot: #e2e8f0;
+}
+
+.dark {
+  --background: #0f172a;
+  --foreground: #e2e8f0;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --border: #334155;
+  --primary: #60a5fa;
+  --primary-foreground: #0f172a;
+  --accent: #1e293b;
+  --destructive: #f87171;
+  --ring: #60a5fa;
+  --card: #1e293b;
+  --card-foreground: #e2e8f0;
+  --card-muted: #94a3b8;
+  --canvas: #0f172a;
+  --canvas-dot: #334155;
 }
 
 @theme inline {
@@ -25,6 +48,11 @@
   --color-accent: var(--accent);
   --color-destructive: var(--destructive);
   --color-ring: var(--ring);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-card-muted: var(--card-muted);
+  --color-canvas: var(--canvas);
+  --color-canvas-dot: var(--canvas-dot);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -66,4 +94,26 @@ body {
 
 .animated-edge-path {
   animation: dash-flow 0.6s linear infinite;
+}
+
+/* Dark mode overrides for React Flow controls */
+.dark .react-flow__controls button {
+  background: var(--card);
+  color: var(--foreground);
+  border-color: var(--border);
+}
+.dark .react-flow__controls button:hover {
+  background: var(--muted);
+}
+.dark .react-flow__controls button svg {
+  fill: var(--foreground);
+}
+.dark .react-flow__minimap {
+  background: var(--card);
+}
+.dark .react-flow__attribution {
+  background: transparent;
+}
+.dark .react-flow__attribution a {
+  color: var(--muted-foreground);
 }

@@ -23,6 +23,10 @@ export type EntityKind =
   | "gateway"
   | "cloud"
   | "security"
+  | "server"
+  | "application"
+  | "api"
+  | "text"
   | "group"
   | "generic";
 

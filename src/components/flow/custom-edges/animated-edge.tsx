@@ -84,7 +84,7 @@ export function AnimatedEdge({
       {(label || data?.label) && (
         <EdgeLabelRenderer>
           <div
-            className="absolute px-2 py-0.5 rounded bg-white border border-border text-xs text-muted-foreground shadow-sm pointer-events-all"
+            className="absolute px-2 py-0.5 rounded bg-card border border-border text-xs text-muted-foreground shadow-sm pointer-events-all"
             style={{
               transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             }}

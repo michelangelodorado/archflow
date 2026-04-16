@@ -16,16 +16,16 @@ export function CdnNode({ data, selected }: NodeProps) {
   return (
     <>
       <NodeHandles color="#38bdf8" dualSides={(d.dualSides as Side[]) ?? []} />
-      <div className={`px-4 py-3 rounded-lg border-2 bg-white shadow-sm min-w-[160px] min-h-[60px] h-full text-center flex flex-col justify-center items-center
+      <div className={`px-4 py-3 rounded-lg border-2 bg-card shadow-sm min-w-[160px] min-h-[60px] h-full text-center flex flex-col justify-center items-center
         ${selected ? "border-primary ring-2 ring-primary/20" : "border-sky-300"}`}
       >
         <NodeResizer isVisible={!!selected} minWidth={160} minHeight={60} />
         <div className="flex items-center gap-2 justify-center">
           <Globe className="w-4 h-4 text-sky-500 flex-shrink-0" />
-          <span className="text-sm font-medium text-gray-800">{d.label}</span>
+          <span className="text-sm font-medium text-card-foreground">{d.label}</span>
         </div>
         {d.properties?.technology && (
-          <div className="text-xs text-gray-500 mt-1">{d.properties.technology}</div>
+          <div className="text-xs text-card-muted mt-1">{d.properties.technology}</div>
         )}
       </div>
     </>

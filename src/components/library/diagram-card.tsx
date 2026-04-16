@@ -4,26 +4,25 @@ import { DiagramSummary } from "@/lib/types/canonical";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DiagramPreview } from "./diagram-preview";
+import { ExternalLink, Copy, Download, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface DiagramCardProps {
   diagram: DiagramSummary;
   onDuplicate: (id: string) => void;
   onDelete: (id: string) => void;
+  onExport: (id: string) => void;
 }
 
-export function DiagramCard({ diagram, onDuplicate, onDelete }: DiagramCardProps) {
+export function DiagramCard({ diagram, onDuplicate, onDelete, onExport }: DiagramCardProps) {
   const router = useRouter();
 
   return (
     <Card className="flex flex-col" onClick={() => router.push(`/diagram/${diagram.id}`)}>
-      {/* Thumbnail placeholder */}
-      <div className="h-36 bg-muted rounded-t-lg flex items-center justify-center border-b border-border">
-        <svg className="w-12 h-12 text-muted-foreground/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-            d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"
-          />
-        </svg>
+      {/* Thumbnail */}
+      <div className="h-36 bg-muted rounded-t-lg flex items-center justify-center border-b border-border p-3">
+        <DiagramPreview diagramId={diagram.id} />
       </div>
 
       <CardHeader>
@@ -43,15 +42,18 @@ export function DiagramCard({ diagram, onDuplicate, onDelete }: DiagramCardProps
         <span className="text-xs text-muted-foreground">
           {new Date(diagram.updatedAt).toLocaleDateString()}
         </span>
-        <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-          <Button variant="ghost" size="sm" onClick={() => router.push(`/diagram/${diagram.id}`)}>
-            Open
+        <div className="flex gap-0.5" onClick={(e) => e.stopPropagation()}>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Open" onClick={() => router.push(`/diagram/${diagram.id}`)}>
+            <ExternalLink className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => onDuplicate(diagram.id)}>
-            Duplicate
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Duplicate" onClick={() => onDuplicate(diagram.id)}>
+            <Copy className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="sm" className="text-destructive" onClick={() => onDelete(diagram.id)}>
-            Delete
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Export" onClick={() => onExport(diagram.id)}>
+            <Download className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => onDelete(diagram.id)}>
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       </CardFooter>

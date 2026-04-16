@@ -3,6 +3,13 @@ import type { Node, Edge } from "@xyflow/react";
 import type { CanonicalDiagram } from "@/lib/types/canonical";
 import { canonicalToFlow, flowToCanonical } from "@/lib/converters/canonical-to-flow";
 
+const MAX_HISTORY = 50;
+
+interface HistoryEntry {
+  nodes: Node[];
+  edges: Edge[];
+}
+
 interface EditorState {
   // Source of truth
   diagram: CanonicalDiagram | null;
@@ -11,6 +18,15 @@ interface EditorState {
   // React Flow projection (derived from canonical)
   nodes: Node[];
   edges: Edge[];
+
+  // History (undo/redo)
+  undoStack: HistoryEntry[];
+  redoStack: HistoryEntry[];
+  canUndo: boolean;
+  canRedo: boolean;
+
+  // Clipboard
+  clipboard: Node[] | null;
 
   // UI state
   selectedNodeId: string | null;
@@ -47,6 +63,18 @@ interface EditorState {
   setSaving: (saving: boolean) => void;
   setDirty: (dirty: boolean) => void;
   updateDiagramMeta: (title: string, description: string) => void;
+
+  // History actions
+  pushHistory: () => void;
+  undo: () => void;
+  redo: () => void;
+
+  // Clipboard actions
+  copySelectedNodes: () => void;
+  pasteNodes: () => void;
+  duplicateSelectedNodes: () => void;
+  selectAllNodes: () => void;
+  deleteSelected: () => void;
 }
 
 export const useEditorStore = create<EditorState>((set, get) => ({
@@ -54,6 +82,11 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   diagramId: null,
   nodes: [],
   edges: [],
+  undoStack: [],
+  redoStack: [],
+  canUndo: false,
+  canRedo: false,
+  clipboard: null,
   selectedNodeId: null,
   selectedEdgeId: null,
   isPalettOpen: true,
@@ -65,11 +98,11 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
   loadDiagram: (id, diagram) => {
     const { nodes, edges } = canonicalToFlow(diagram);
-    set({ diagram, diagramId: id, nodes, edges, isDirty: false });
+    set({ diagram, diagramId: id, nodes, edges, isDirty: false, undoStack: [], redoStack: [], canUndo: false, canRedo: false });
   },
 
-  setNodes: (nodes) => set({ nodes, isDirty: true }),
-  setEdges: (edges) => set({ edges, isDirty: true }),
+  setNodes: (nodes) => set({ nodes }),
+  setEdges: (edges) => set({ edges }),
 
   onNodesChange: (nodes) => set({ nodes, isDirty: true }),
   onEdgesChange: (edges) => set({ edges, isDirty: true }),
@@ -241,4 +274,125 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         isDirty: true,
       };
     }),
+
+  // --- History (undo / redo) ------------------------------------------------
+
+  pushHistory: () => {
+    const { nodes, edges, undoStack } = get();
+    const entry: HistoryEntry = {
+      nodes: JSON.parse(JSON.stringify(nodes)),
+      edges: JSON.parse(JSON.stringify(edges)),
+    };
+    const newStack = [...undoStack, entry].slice(-MAX_HISTORY);
+    set({ undoStack: newStack, redoStack: [], canUndo: true, canRedo: false });
+  },
+
+  undo: () => {
+    const { undoStack, redoStack, nodes, edges } = get();
+    if (undoStack.length === 0) return;
+    const prev = undoStack[undoStack.length - 1];
+    const newUndo = undoStack.slice(0, -1);
+    const currentEntry: HistoryEntry = {
+      nodes: JSON.parse(JSON.stringify(nodes)),
+      edges: JSON.parse(JSON.stringify(edges)),
+    };
+    set({
+      nodes: prev.nodes,
+      edges: prev.edges,
+      undoStack: newUndo,
+      redoStack: [...redoStack, currentEntry],
+      canUndo: newUndo.length > 0,
+      canRedo: true,
+      isDirty: true,
+    });
+  },
+
+  redo: () => {
+    const { undoStack, redoStack, nodes, edges } = get();
+    if (redoStack.length === 0) return;
+    const next = redoStack[redoStack.length - 1];
+    const newRedo = redoStack.slice(0, -1);
+    const currentEntry: HistoryEntry = {
+      nodes: JSON.parse(JSON.stringify(nodes)),
+      edges: JSON.parse(JSON.stringify(edges)),
+    };
+    set({
+      nodes: next.nodes,
+      edges: next.edges,
+      undoStack: [...undoStack, currentEntry],
+      redoStack: newRedo,
+      canUndo: true,
+      canRedo: newRedo.length > 0,
+      isDirty: true,
+    });
+  },
+
+  // --- Clipboard (copy / paste / duplicate) ---------------------------------
+
+  copySelectedNodes: () => {
+    const { nodes, selectedNodeId } = get();
+    if (!selectedNodeId) return;
+    const selected = nodes.filter((n) => n.id === selectedNodeId || n.selected);
+    if (selected.length === 0) return;
+    set({ clipboard: JSON.parse(JSON.stringify(selected)) });
+  },
+
+  pasteNodes: () => {
+    const { clipboard, nodes } = get();
+    if (!clipboard || clipboard.length === 0) return;
+    get().pushHistory();
+    const offset = 40;
+    const now = Date.now();
+    const newNodes = clipboard.map((n, i) => ({
+      ...n,
+      id: `node-${now}-${i}`,
+      position: { x: n.position.x + offset, y: n.position.y + offset },
+      selected: false,
+    }));
+    set({ nodes: [...nodes, ...newNodes], isDirty: true });
+  },
+
+  duplicateSelectedNodes: () => {
+    const { nodes, selectedNodeId } = get();
+    if (!selectedNodeId) return;
+    const selected = nodes.filter((n) => n.id === selectedNodeId || n.selected);
+    if (selected.length === 0) return;
+    get().pushHistory();
+    const offset = 40;
+    const now = Date.now();
+    const newNodes = selected.map((n, i) => ({
+      ...JSON.parse(JSON.stringify(n)),
+      id: `node-${now}-${i}`,
+      position: { x: n.position.x + offset, y: n.position.y + offset },
+      selected: false,
+    }));
+    set({ nodes: [...nodes, ...newNodes], isDirty: true });
+  },
+
+  selectAllNodes: () => {
+    set((state) => ({
+      nodes: state.nodes.map((n) => ({ ...n, selected: true })),
+    }));
+  },
+
+  deleteSelected: () => {
+    const { nodes, edges, selectedNodeId, selectedEdgeId } = get();
+    const selectedNodeIds = new Set(
+      nodes.filter((n) => n.id === selectedNodeId || n.selected).map((n) => n.id),
+    );
+    if (selectedNodeIds.size === 0 && !selectedEdgeId) return;
+    get().pushHistory();
+    set({
+      nodes: nodes.filter((n) => !selectedNodeIds.has(n.id)),
+      edges: edges.filter(
+        (e) =>
+          e.id !== selectedEdgeId &&
+          !selectedNodeIds.has(e.source) &&
+          !selectedNodeIds.has(e.target),
+      ),
+      selectedNodeId: null,
+      selectedEdgeId: null,
+      isDirty: true,
+    });
+  },
 }));

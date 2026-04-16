@@ -151,3 +151,73 @@ export function getDiagramVersions(id: string): DiagramVersionSummary[] {
 export function createBlankDiagram(): { summary: DiagramSummary; document: CanonicalDiagram } {
   return createDiagram({ ...blankDiagram });
 }
+
+// ---- Export ---------------------------------------------------------------
+
+export function exportDiagramToFile(id: string): void {
+  const doc = documents[id];
+  if (!doc) return;
+
+  const json = JSON.stringify(doc, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const slug = doc.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  const filename = `${slug || "diagram"}.archflow.json`;
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export function exportCanonicalToFile(diagram: CanonicalDiagram): void {
+  const json = JSON.stringify(diagram, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const slug = diagram.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  const filename = `${slug || "diagram"}.archflow.json`;
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ---- Import ---------------------------------------------------------------
+
+function validateCanonicalDiagram(data: unknown): data is CanonicalDiagram {
+  if (typeof data !== "object" || data === null) return false;
+  const d = data as Record<string, unknown>;
+  return (
+    d.version === "1.0" &&
+    typeof d.title === "string" &&
+    typeof d.description === "string" &&
+    Array.isArray(d.entities) &&
+    Array.isArray(d.relationships) &&
+    typeof d.layout === "object" &&
+    d.layout !== null
+  );
+}
+
+export function importDiagramFromJson(
+  json: string,
+): { summary: DiagramSummary; document: CanonicalDiagram } | { error: string } {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(json);
+  } catch {
+    return { error: "Invalid JSON file." };
+  }
+
+  if (!validateCanonicalDiagram(parsed)) {
+    return {
+      error: "The file is not a valid ArchFlow diagram. Expected version \"1.0\" with title, entities, relationships, and layout.",
+    };
+  }
+
+  return createDiagram(parsed);
+}

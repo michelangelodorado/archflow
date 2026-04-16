@@ -398,7 +398,7 @@ function IconPickerField({ nodeId, currentIcon }: { nodeId: string; currentIcon:
       >
         {currentIcon && iconMap[currentIcon] ? (
           <>
-            {(() => { const I = iconMap[currentIcon]; return <I className="w-4 h-4 text-gray-500" />; })()}
+            {(() => { const I = iconMap[currentIcon]; return <I className="w-4 h-4 text-muted-foreground" />; })()}
             <span>{currentIcon}</span>
           </>
         ) : (
@@ -431,7 +431,7 @@ function IconPickerField({ nodeId, currentIcon }: { nodeId: string; currentIcon:
                   className={`p-1.5 rounded hover:bg-muted transition-colors
                     ${currentIcon === name ? "bg-primary/10 ring-1 ring-primary" : ""}`}
                 >
-                  <Icon className="w-4 h-4 text-gray-600 mx-auto" />
+                  <Icon className="w-4 h-4 text-muted-foreground mx-auto" />
                 </button>
               );
             })}

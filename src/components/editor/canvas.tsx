@@ -13,20 +13,27 @@ import {
   type Connection,
   type OnConnect,
   type OnNodeDrag,
+  type NodeChange,
+  type EdgeChange,
   BackgroundVariant,
 } from "@xyflow/react";
 import { nodeTypes, edgeTypes } from "@/components/flow/node-types";
 import { useEditorStore } from "@/lib/store/editor-store";
+import { useKeyboardShortcuts } from "@/lib/hooks/use-keyboard-shortcuts";
 import { useEffect } from "react";
 
 export function Canvas() {
+  useKeyboardShortcuts();
+
   const {
     nodes: storeNodes,
     edges: storeEdges,
     setNodes,
     setEdges,
+    setDirty,
     selectNode,
     selectEdge,
+    pushHistory,
   } = useEditorStore();
 
   const [nodes, setLocalNodes, onNodesChange] = useNodesState(storeNodes);
@@ -47,8 +54,29 @@ export function Canvas() {
     setEdges(edges);
   }, [edges, setEdges]);
 
+  const handleNodesChange = useCallback(
+    (changes: NodeChange[]) => {
+      onNodesChange(changes);
+      if (changes.some((c) => c.type !== "select" && c.type !== "dimensions")) {
+        setDirty(true);
+      }
+    },
+    [onNodesChange, setDirty],
+  );
+
+  const handleEdgesChange = useCallback(
+    (changes: EdgeChange[]) => {
+      onEdgesChange(changes);
+      if (changes.some((c) => c.type !== "select")) {
+        setDirty(true);
+      }
+    },
+    [onEdgesChange, setDirty],
+  );
+
   const onConnect: OnConnect = useCallback(
     (connection: Connection) => {
+      pushHistory();
       setLocalEdges((eds) =>
         addEdge(
           {
@@ -69,8 +97,9 @@ export function Canvas() {
           eds,
         ),
       );
+      setDirty(true);
     },
-    [setLocalEdges],
+    [setLocalEdges, setDirty, pushHistory],
   );
 
   const onNodeClick = useCallback(
@@ -86,6 +115,10 @@ export function Canvas() {
     },
     [selectEdge],
   );
+
+  const onNodeDragStart: OnNodeDrag = useCallback(() => {
+    pushHistory();
+  }, [pushHistory]);
 
   const onPaneClick = useCallback(() => {
     selectNode(null);
@@ -118,28 +151,40 @@ export function Canvas() {
         "load-balancer": "load-balancer",
         cloud: "cloud",
         security: "security",
+        server: "server",
+        application: "application",
+        api: "api",
         cdn: "cdn",
         storage: "storage",
+        text: "text",
         group: "group",
         generic: "generic",
       };
 
+      pushHistory();
       const isGroup = kind === "group";
+      const isText = kind === "text";
+      const defaultLabel = isGroup
+        ? "New Group"
+        : isText
+          ? "Double-click to edit"
+          : kind.charAt(0).toUpperCase() + kind.slice(1);
       const newNode = {
         id: `node-${Date.now()}`,
         type: kindToType[kind] || "generic",
         position,
         ...(isGroup && { style: { width: 400, height: 300 }, zIndex: -1 }),
         data: {
-          label: isGroup ? "New Group" : kind.charAt(0).toUpperCase() + kind.slice(1),
+          label: defaultLabel,
           kind,
           properties: {},
         },
       };
 
       setLocalNodes((nds) => [...nds, newNode]);
+      setDirty(true);
     },
-    [setLocalNodes],
+    [setLocalNodes, setDirty, pushHistory],
   );
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -152,9 +197,10 @@ export function Canvas() {
       <ReactFlow
         nodes={nodes}
         edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
+        onNodesChange={handleNodesChange}
+        onEdgesChange={handleEdgesChange}
         onConnect={onConnect}
+        onNodeDragStart={onNodeDragStart}
         onNodeClick={onNodeClick}
         onEdgeClick={onEdgeClick}
         onPaneClick={onPaneClick}
@@ -166,10 +212,10 @@ export function Canvas() {
         snapToGrid
         snapGrid={[20, 20]}
         fitView
-        deleteKeyCode="Delete"
-        className="bg-gray-50"
+        deleteKeyCode={null}
+        className="!bg-canvas"
       >
-        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#e2e8f0" />
+        <Background variant={BackgroundVariant.Dots} gap={20} size={1} className="!fill-canvas-dot" />
         <Controls position="bottom-right" />
         <MiniMap
           position="bottom-right"
@@ -188,6 +234,10 @@ export function Canvas() {
               case "gateway": return "#06b6d4";
               case "cloud": return "#38bdf8";
               case "security": return "#f87171";
+              case "server": return "#64748b";
+              case "application": return "#8b5cf6";
+              case "api": return "#f59e0b";
+              case "text": return "transparent";
               case "group": return "#818cf8";
               default: return "#94a3b8";
             }

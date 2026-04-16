@@ -11,6 +11,10 @@ import { FunctionNode } from "./custom-nodes/function-node";
 import { GatewayNode } from "./custom-nodes/gateway-node";
 import { CloudNode } from "./custom-nodes/cloud-node";
 import { SecurityNode } from "./custom-nodes/security-node";
+import { ServerNode } from "./custom-nodes/server-node";
+import { ApplicationNode } from "./custom-nodes/application-node";
+import { ApiNode } from "./custom-nodes/api-node";
+import { TextNode } from "./custom-nodes/text-node";
 import { GroupNode } from "./custom-nodes/group-node";
 import { AnimatedEdge } from "./custom-edges/animated-edge";
 import type { NodeTypes, EdgeTypes } from "@xyflow/react";
@@ -29,6 +33,10 @@ export const nodeTypes: NodeTypes = {
   gateway: GatewayNode,
   cloud: CloudNode,
   security: SecurityNode,
+  server: ServerNode,
+  application: ApplicationNode,
+  api: ApiNode,
+  text: TextNode,
   group: GroupNode,
 };
 
