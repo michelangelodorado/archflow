@@ -3,12 +3,14 @@
 import { useCallback } from "react";
 import {
   ReactFlow,
+  ReactFlowProvider,
   Background,
   Controls,
   MiniMap,
   ConnectionMode,
   useNodesState,
   useEdgesState,
+  useReactFlow,
   addEdge,
   type Connection,
   type OnConnect,
@@ -23,8 +25,17 @@ import { useKeyboardShortcuts } from "@/lib/hooks/use-keyboard-shortcuts";
 import { useEffect } from "react";
 
 export function Canvas() {
+  return (
+    <ReactFlowProvider>
+      <CanvasInner />
+    </ReactFlowProvider>
+  );
+}
+
+function CanvasInner() {
   useKeyboardShortcuts();
 
+  const { screenToFlowPosition } = useReactFlow();
   const {
     nodes: storeNodes,
     edges: storeEdges,
@@ -131,13 +142,11 @@ export function Canvas() {
       const kind = event.dataTransfer.getData("application/archflow-kind");
       if (!kind) return;
 
-      const bounds = (event.target as HTMLElement).closest(".react-flow")?.getBoundingClientRect();
-      if (!bounds) return;
-
       const GRID = 20;
+      const flowPos = screenToFlowPosition({ x: event.clientX, y: event.clientY });
       const position = {
-        x: Math.round((event.clientX - bounds.left) / GRID) * GRID,
-        y: Math.round((event.clientY - bounds.top) / GRID) * GRID,
+        x: Math.round(flowPos.x / GRID) * GRID,
+        y: Math.round(flowPos.y / GRID) * GRID,
       };
 
       const kindToType: Record<string, string> = {
@@ -184,7 +193,7 @@ export function Canvas() {
       setLocalNodes((nds) => [...nds, newNode]);
       setDirty(true);
     },
-    [setLocalNodes, setDirty, pushHistory],
+    [setLocalNodes, setDirty, pushHistory, screenToFlowPosition],
   );
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -216,10 +225,9 @@ export function Canvas() {
         className="!bg-canvas"
       >
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} className="!fill-canvas-dot" />
-        <Controls position="bottom-right" />
+        <Controls position="bottom-left" />
         <MiniMap
           position="bottom-right"
-          className="!mb-14"
           nodeColor={(node) => {
             switch (node.type) {
               case "service": return "#3b82f6";

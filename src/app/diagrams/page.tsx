@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/theme-provider";
 import { Sun, Moon } from "lucide-react";
@@ -22,6 +22,7 @@ export default function DiagramsPage() {
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importError, setImportError] = useState<string | null>(null);
   const {
     diagrams,
     setDiagrams,
@@ -65,8 +66,9 @@ export default function DiagramsPage() {
       const json = reader.result as string;
       const result = importDiagramFromJson(json);
       if ("error" in result) {
-        alert(result.error);
+        setImportError(result.error);
       } else {
+        setImportError(null);
         addDiagram(result.summary);
         router.push(`/diagram/${result.summary.id}`);
       }
@@ -123,6 +125,19 @@ export default function DiagramsPage() {
           />
         </div>
       </header>
+
+      {importError && (
+        <div className="max-w-7xl mx-auto px-6 pt-4">
+          <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-md border border-destructive/30 bg-destructive/5 text-sm text-destructive">
+            <span>{importError}</span>
+            <button onClick={() => setImportError(null)} className="shrink-0 hover:opacity-70">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main content */}
       <main className="max-w-7xl mx-auto px-6 py-6">

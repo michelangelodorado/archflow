@@ -31,7 +31,7 @@ interface EditorState {
   // UI state
   selectedNodeId: string | null;
   selectedEdgeId: string | null;
-  isPalettOpen: boolean;
+  isPaletteOpen: boolean;
   isInspectorOpen: boolean;
   bottomDrawerTab: "ai" | "json" | "validation" | "history";
   isBottomDrawerOpen: boolean;
@@ -89,7 +89,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   clipboard: null,
   selectedNodeId: null,
   selectedEdgeId: null,
-  isPalettOpen: true,
+  isPaletteOpen: true,
   isInspectorOpen: true,
   bottomDrawerTab: "ai",
   isBottomDrawerOpen: false,
@@ -259,7 +259,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     set({ diagram: updated });
   },
 
-  togglePalette: () => set((s) => ({ isPalettOpen: !s.isPalettOpen })),
+  togglePalette: () => set((s) => ({ isPaletteOpen: !s.isPaletteOpen })),
   toggleInspector: () => set((s) => ({ isInspectorOpen: !s.isInspectorOpen })),
   setBottomDrawerTab: (tab) => set({ bottomDrawerTab: tab, isBottomDrawerOpen: true }),
   toggleBottomDrawer: () => set((s) => ({ isBottomDrawerOpen: !s.isBottomDrawerOpen })),

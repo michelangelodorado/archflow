@@ -8,13 +8,13 @@ import { InspectorPanel } from "./inspector-panel";
 import { BottomDrawer } from "./bottom-drawer";
 
 export function EditorLayout() {
-  const { isPalettOpen, isInspectorOpen } = useEditorStore();
+  const { isPaletteOpen, isInspectorOpen } = useEditorStore();
 
   return (
     <div className="h-screen flex flex-col">
       <Toolbar />
       <div className="flex flex-1 min-h-0">
-        {isPalettOpen && <ComponentPalette />}
+        {isPaletteOpen && <ComponentPalette />}
         <Canvas />
         {isInspectorOpen && <InspectorPanel />}
       </div>
