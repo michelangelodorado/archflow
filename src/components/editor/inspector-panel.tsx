@@ -30,6 +30,78 @@ export function InspectorPanel() {
     const data = selectedNode.data as Record<string, unknown>;
     const properties = (data.properties ?? {}) as Record<string, string>;
     const isGroup = data.kind === "group";
+    const isCallout = data.kind === "callout";
+
+    // --- Callout node inspector ---
+    if (isCallout) {
+      return (
+        <div className="w-64 border-l border-border bg-background p-4 shrink-0 overflow-y-auto">
+          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            Callout Inspector
+          </h2>
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Label</label>
+              <Input
+                value={(data.label as string) ?? ""}
+                onChange={(e) => updateNodeData(selectedNode.id, { label: e.target.value })}
+                className="mt-1"
+                placeholder="Callout text"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Pointer Direction</label>
+              <div className="grid grid-cols-2 gap-1.5 mt-1">
+                {(["top", "bottom", "left", "right"] as const).map((dir) => {
+                  const current = (data.pointerDirection as string) ?? "bottom";
+                  return (
+                    <button
+                      key={dir}
+                      onClick={() => updateNodeData(selectedNode.id, { pointerDirection: dir })}
+                      className={`px-2 py-1.5 text-xs font-medium rounded-md border transition-colors capitalize
+                        ${current === dir
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background text-foreground border-border hover:bg-muted"}`}
+                    >
+                      {dir}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Background Color</label>
+              <div className="flex items-center gap-2 mt-1">
+                <input
+                  type="color"
+                  value={(data.bgColor as string) ?? "#fefce8"}
+                  onChange={(e) => updateNodeData(selectedNode.id, { bgColor: e.target.value })}
+                  className="w-8 h-8 rounded border border-border cursor-pointer"
+                />
+                <span className="text-xs text-muted-foreground">{(data.bgColor as string) ?? "#fefce8"}</span>
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Border Color</label>
+              <div className="flex items-center gap-2 mt-1">
+                <input
+                  type="color"
+                  value={(data.borderColor as string) ?? "#facc15"}
+                  onChange={(e) => updateNodeData(selectedNode.id, { borderColor: e.target.value })}
+                  className="w-8 h-8 rounded border border-border cursor-pointer"
+                />
+                <span className="text-xs text-muted-foreground">{(data.borderColor as string) ?? "#facc15"}</span>
+              </div>
+            </div>
+            <div className="pt-2 border-t border-border">
+              <Button variant="destructive" size="sm" onClick={() => removeNode(selectedNode.id)}>
+                Delete Callout
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     // --- Group node inspector ---
     if (isGroup) {

@@ -53,6 +53,12 @@ export function canonicalToNodes(diagram: CanonicalDiagram): Node[] {
       if (dims.height) nodeStyle.height = dims.height;
     }
 
+    // Set explicit width/height so React Flow has dimensions before DOM measurement.
+    // Without these, getNodeDimensions() returns 0 during adoptUserNodes(),
+    // causing clampPositionToParent() to clamp children to the parent's top-left.
+    const nodeWidth = isGroup ? (dims?.width ?? 400) : dims?.width;
+    const nodeHeight = isGroup ? (dims?.height ?? 300) : dims?.height;
+
     const node: Node = {
       id: entity.id,
       type: entityKindToNodeType(entity.kind),
@@ -61,9 +67,11 @@ export function canonicalToNodes(diagram: CanonicalDiagram): Node[] {
         label: entity.label,
         kind: entity.kind,
         properties: entity.properties,
-        ...extraData, // Restore UI-level fields (dualSides, icon, borderColor, etc.) to data top-level
+        ...extraData,
       },
       ...(Object.keys(nodeStyle).length > 0 && { style: nodeStyle }),
+      ...(nodeWidth != null && { width: nodeWidth }),
+      ...(nodeHeight != null && { height: nodeHeight }),
       ...(isGroup && { zIndex: -1 }),
       ...(parentId && {
         parentId,
@@ -121,8 +129,8 @@ export function flowNodesToLayout(nodes: Node[]): EntityLayout[] {
     return {
       entityId: node.id,
       position: { x: node.position.x, y: node.position.y },
-      width: node.measured?.width ?? (style?.width as number | undefined) ?? undefined,
-      height: node.measured?.height ?? (style?.height as number | undefined) ?? undefined,
+      width: node.measured?.width ?? node.width ?? (style?.width as number | undefined) ?? undefined,
+      height: node.measured?.height ?? node.height ?? (style?.height as number | undefined) ?? undefined,
     };
   });
 }
@@ -206,7 +214,7 @@ function entityKindToNodeType(kind: string): string {
   const supported = [
     "service", "database", "queue", "cache",
     "load-balancer", "cdn", "cloud", "security", "storage", "client", "function", "gateway", "group",
-    "server", "application", "api", "text", "generic",
+    "server", "application", "api", "text", "callout", "generic",
   ];
   return supported.includes(kind) ? kind : "generic";
 }

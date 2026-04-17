@@ -27,6 +27,7 @@ export type EntityKind =
   | "application"
   | "api"
   | "text"
+  | "callout"
   | "group"
   | "generic";
 
@@ -139,6 +140,15 @@ export interface DiagramMetadata {
   notes?: string;
 }
 
+// ---- Flows (named subsets for interactive highlighting) -------------------
+
+export interface DiagramFlow {
+  id: string;
+  name: string;
+  nodeIds: string[];
+  color?: string;
+}
+
 // ---- Root Document --------------------------------------------------------
 
 export interface CanonicalDiagram {
@@ -151,6 +161,7 @@ export interface CanonicalDiagram {
   layout: Layout;
   style: Style;
   metadata: DiagramMetadata;
+  flows?: DiagramFlow[];
 }
 
 // ---- Library types (lightweight, for list views) --------------------------

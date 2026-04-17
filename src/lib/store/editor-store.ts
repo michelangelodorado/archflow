@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { Node, Edge } from "@xyflow/react";
-import type { CanonicalDiagram } from "@/lib/types/canonical";
+import type { CanonicalDiagram, DiagramFlow } from "@/lib/types/canonical";
 import { canonicalToFlow, flowToCanonical } from "@/lib/converters/canonical-to-flow";
 
 const MAX_HISTORY = 50;
@@ -37,6 +37,10 @@ interface EditorState {
   isBottomDrawerOpen: boolean;
   isSaving: boolean;
   isDirty: boolean;
+
+  // Flows (saved highlight sets)
+  flows: DiagramFlow[];
+  activeFlowId: string | null;
 
   // Actions
   loadDiagram: (id: string, diagram: CanonicalDiagram) => void;
@@ -75,6 +79,11 @@ interface EditorState {
   duplicateSelectedNodes: () => void;
   selectAllNodes: () => void;
   deleteSelected: () => void;
+
+  // Flow actions
+  saveFlow: (name: string) => void;
+  activateFlow: (id: string | null) => void;
+  removeFlow: (id: string) => void;
 }
 
 export const useEditorStore = create<EditorState>((set, get) => ({
@@ -95,10 +104,12 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   isBottomDrawerOpen: false,
   isSaving: false,
   isDirty: false,
+  flows: [],
+  activeFlowId: null,
 
   loadDiagram: (id, diagram) => {
     const { nodes, edges } = canonicalToFlow(diagram);
-    set({ diagram, diagramId: id, nodes, edges, isDirty: false, undoStack: [], redoStack: [], canUndo: false, canRedo: false });
+    set({ diagram, diagramId: id, nodes, edges, isDirty: false, undoStack: [], redoStack: [], canUndo: false, canRedo: false, flows: diagram.flows ?? [], activeFlowId: null });
   },
 
   setNodes: (nodes) => set({ nodes }),
@@ -253,10 +264,10 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     }),
 
   syncToCanonical: () => {
-    const { nodes, edges, diagram } = get();
+    const { nodes, edges, diagram, flows } = get();
     if (!diagram) return;
     const updated = flowToCanonical(nodes, edges, diagram);
-    set({ diagram: updated });
+    set({ diagram: { ...updated, flows } });
   },
 
   togglePalette: () => set((s) => ({ isPaletteOpen: !s.isPaletteOpen })),
@@ -392,6 +403,36 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       ),
       selectedNodeId: null,
       selectedEdgeId: null,
+      isDirty: true,
+    });
+  },
+
+  saveFlow: (name: string) => {
+    const FLOW_COLORS = ["#3b82f6", "#22c55e", "#f97316", "#a855f7", "#f43f5e", "#06b6d4", "#eab308", "#ec4899"];
+    const { nodes, selectedNodeId, flows } = get();
+    const selectedIds = nodes
+      .filter((n) => n.selected || n.id === selectedNodeId)
+      .map((n) => n.id);
+    if (selectedIds.length === 0) return;
+
+    const flow: DiagramFlow = {
+      id: `flow-${Date.now()}`,
+      name,
+      nodeIds: selectedIds,
+      color: FLOW_COLORS[flows.length % FLOW_COLORS.length],
+    };
+    set({ flows: [...flows, flow], activeFlowId: flow.id, isDirty: true });
+  },
+
+  activateFlow: (id: string | null) => {
+    set({ activeFlowId: id });
+  },
+
+  removeFlow: (id: string) => {
+    const { flows, activeFlowId } = get();
+    set({
+      flows: flows.filter((f) => f.id !== id),
+      activeFlowId: activeFlowId === id ? null : activeFlowId,
       isDirty: true,
     });
   },

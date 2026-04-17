@@ -16,6 +16,7 @@ import { ApplicationNode } from "./custom-nodes/application-node";
 import { ApiNode } from "./custom-nodes/api-node";
 import { TextNode } from "./custom-nodes/text-node";
 import { GroupNode } from "./custom-nodes/group-node";
+import { CalloutNode } from "./custom-nodes/callout-node";
 import { AnimatedEdge } from "./custom-edges/animated-edge";
 import type { NodeTypes, EdgeTypes } from "@xyflow/react";
 
@@ -37,6 +38,7 @@ export const nodeTypes: NodeTypes = {
   application: ApplicationNode,
   api: ApiNode,
   text: TextNode,
+  callout: CalloutNode,
   group: GroupNode,
 };
 

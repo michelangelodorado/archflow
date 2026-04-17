@@ -23,6 +23,7 @@ import {
   AppWindow,
   Webhook,
   Type,
+  MessageSquareQuote,
   Search,
 } from "lucide-react";
 
@@ -54,6 +55,7 @@ const paletteItems: PaletteItem[] = [
   { kind: "api", label: "API", lightColor: "border-amber-300 bg-amber-50", darkColor: "border-amber-700 bg-amber-950", icon: Webhook, lightIconColor: "text-amber-500", darkIconColor: "text-amber-400" },
   { kind: "function", label: "Function", lightColor: "border-blue-300 bg-blue-50", darkColor: "border-blue-700 bg-blue-950", icon: SquareFunction, lightIconColor: "text-blue-500", darkIconColor: "text-blue-400" },
   { kind: "text", label: "Text", lightColor: "border-stone-300 bg-stone-50", darkColor: "border-stone-600 bg-stone-900", icon: Type, lightIconColor: "text-stone-500", darkIconColor: "text-stone-400" },
+  { kind: "callout", label: "Callout", lightColor: "border-yellow-300 bg-yellow-50", darkColor: "border-yellow-700 bg-yellow-950", icon: MessageSquareQuote, lightIconColor: "text-yellow-500", darkIconColor: "text-yellow-400" },
   { kind: "generic", label: "Generic", lightColor: "border-gray-300 bg-gray-50", darkColor: "border-gray-600 bg-gray-900", icon: LayoutGrid, lightIconColor: "text-gray-500", darkIconColor: "text-gray-400" },
 ];
 

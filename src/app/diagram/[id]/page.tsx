@@ -11,7 +11,7 @@ export default function DiagramEditorPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const { loadDiagram, diagram } = useEditorStore();
+  const { loadDiagram, diagram, diagramId } = useEditorStore();
 
   useEffect(() => {
     // TODO: Replace with API fetch from Postgres
@@ -21,7 +21,7 @@ export default function DiagramEditorPage({
     }
   }, [id, loadDiagram]);
 
-  if (!diagram) {
+  if (!diagram || diagramId !== id) {
     return (
       <div className="h-screen flex items-center justify-center">
         <p className="text-muted-foreground">Loading diagram...</p>

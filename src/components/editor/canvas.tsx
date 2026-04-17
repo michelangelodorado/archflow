@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
   Background,
   Controls,
   MiniMap,
+  Panel,
   ConnectionMode,
   useNodesState,
   useEdgesState,
@@ -22,6 +23,7 @@ import {
 import { nodeTypes, edgeTypes } from "@/components/flow/node-types";
 import { useEditorStore } from "@/lib/store/editor-store";
 import { useKeyboardShortcuts } from "@/lib/hooks/use-keyboard-shortcuts";
+import { FlowPanel } from "./flow-panel";
 import { useEffect } from "react";
 
 export function Canvas() {
@@ -45,6 +47,8 @@ function CanvasInner() {
     selectNode,
     selectEdge,
     pushHistory,
+    flows,
+    activeFlowId,
   } = useEditorStore();
 
   const [nodes, setLocalNodes, onNodesChange] = useNodesState(storeNodes);
@@ -64,6 +68,35 @@ function CanvasInner() {
   useEffect(() => {
     setEdges(edges);
   }, [edges, setEdges]);
+
+  const activeFlow = useMemo(
+    () => flows.find((f) => f.id === activeFlowId) ?? null,
+    [flows, activeFlowId],
+  );
+
+  const displayNodes = useMemo(() => {
+    if (!activeFlow) return nodes;
+    const hlSet = new Set(activeFlow.nodeIds);
+    const color = activeFlow.color ?? "#3b82f6";
+    return nodes.map((n) =>
+      hlSet.has(n.id)
+        ? { ...n, style: { ...n.style, opacity: 1, filter: `drop-shadow(0 0 6px ${color}80)`, transition: "opacity 0.3s ease, filter 0.3s ease" } }
+        : { ...n, style: { ...n.style, opacity: 0.15, filter: "none", transition: "opacity 0.3s ease, filter 0.3s ease" } },
+    );
+  }, [nodes, activeFlow]);
+
+  const displayEdges = useMemo(() => {
+    if (!activeFlow) return edges;
+    const nodeSet = new Set(activeFlow.nodeIds);
+    const color = activeFlow.color ?? "#3b82f6";
+    return edges.map((e) => {
+      const isHL = nodeSet.has(e.source) && nodeSet.has(e.target);
+      return {
+        ...e,
+        data: { ...e.data, dimmed: !isHL, highlighted: isHL, highlightColor: isHL ? color : undefined },
+      };
+    });
+  }, [edges, activeFlow]);
 
   const handleNodesChange = useCallback(
     (changes: NodeChange[]) => {
@@ -166,6 +199,7 @@ function CanvasInner() {
         cdn: "cdn",
         storage: "storage",
         text: "text",
+        callout: "callout",
         group: "group",
         generic: "generic",
       };
@@ -173,11 +207,14 @@ function CanvasInner() {
       pushHistory();
       const isGroup = kind === "group";
       const isText = kind === "text";
+      const isCallout = kind === "callout";
       const defaultLabel = isGroup
         ? "New Group"
         : isText
           ? "Double-click to edit"
-          : kind.charAt(0).toUpperCase() + kind.slice(1);
+          : isCallout
+            ? "Callout"
+            : kind.charAt(0).toUpperCase() + kind.slice(1);
       const newNode = {
         id: `node-${Date.now()}`,
         type: kindToType[kind] || "generic",
@@ -204,8 +241,8 @@ function CanvasInner() {
   return (
     <div className="flex-1 h-full">
       <ReactFlow
-        nodes={nodes}
-        edges={edges}
+        nodes={displayNodes}
+        edges={displayEdges}
         onNodesChange={handleNodesChange}
         onEdgesChange={handleEdgesChange}
         onConnect={onConnect}
@@ -226,6 +263,9 @@ function CanvasInner() {
       >
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} className="!fill-canvas-dot" />
         <Controls position="bottom-left" />
+        <Panel position="top-right">
+          <FlowPanel />
+        </Panel>
         <MiniMap
           position="bottom-right"
           nodeColor={(node) => {
@@ -246,6 +286,7 @@ function CanvasInner() {
               case "application": return "#8b5cf6";
               case "api": return "#f59e0b";
               case "text": return "transparent";
+              case "callout": return "#facc15";
               case "group": return "#818cf8";
               default: return "#94a3b8";
             }
