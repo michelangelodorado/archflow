@@ -187,11 +187,11 @@ export function InspectorPanel() {
               <div className="flex items-center gap-2 mt-1">
                 <input
                   type="color"
-                  value={(data.bgColor as string) ?? "#fefce8"}
+                  value={(data.bgColor as string) ?? "#f3f4f6"}
                   onChange={(e) => updateNodeData(selectedNode.id, { bgColor: e.target.value })}
                   className="w-8 h-8 rounded border border-border cursor-pointer"
                 />
-                <span className="text-xs text-muted-foreground">{(data.bgColor as string) ?? "#fefce8"}</span>
+                <span className="text-xs text-muted-foreground">{(data.bgColor as string) ?? "#f3f4f6"}</span>
               </div>
             </div>
             <div>
@@ -199,11 +199,11 @@ export function InspectorPanel() {
               <div className="flex items-center gap-2 mt-1">
                 <input
                   type="color"
-                  value={(data.borderColor as string) ?? "#facc15"}
+                  value={(data.borderColor as string) ?? "#9ca3af"}
                   onChange={(e) => updateNodeData(selectedNode.id, { borderColor: e.target.value })}
                   className="w-8 h-8 rounded border border-border cursor-pointer"
                 />
-                <span className="text-xs text-muted-foreground">{(data.borderColor as string) ?? "#facc15"}</span>
+                <span className="text-xs text-muted-foreground">{(data.borderColor as string) ?? "#9ca3af"}</span>
               </div>
             </div>
             <div className="pt-2 border-t border-border">
@@ -369,6 +369,8 @@ export function InspectorPanel() {
             <label className="text-xs font-medium text-muted-foreground">Kind</label>
             <div className="text-sm mt-1 px-3 py-1.5 bg-muted rounded-md">{data.kind as string}</div>
           </div>
+
+          <NodeColorPicker nodeId={selectedNode.id} currentColor={(data.nodeColor as string) ?? "#9ca3af"} />
 
           {data.kind === "generic" && <IconPickerField nodeId={selectedNode.id} currentIcon={(data.icon as string) ?? ""} />}
 
@@ -628,6 +630,45 @@ function LogoField({ nodeId, currentLogo }: { nodeId: string; currentLogo: strin
         </div>
       )}
       <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
+    </div>
+  );
+}
+
+const NODE_COLOR_PRESETS = [
+  { name: "Gray", value: "#9ca3af" },
+  { name: "Blue", value: "#3b82f6" },
+  { name: "Green", value: "#22c55e" },
+  { name: "Red", value: "#ef4444" },
+  { name: "Orange", value: "#f97316" },
+  { name: "Purple", value: "#a855f7" },
+  { name: "Cyan", value: "#06b6d4" },
+  { name: "Teal", value: "#14b8a6" },
+  { name: "Indigo", value: "#6366f1" },
+  { name: "Amber", value: "#f59e0b" },
+  { name: "Rose", value: "#f43f5e" },
+  { name: "Sky", value: "#0ea5e9" },
+  { name: "Emerald", value: "#10b981" },
+  { name: "Pink", value: "#ec4899" },
+  { name: "Slate", value: "#64748b" },
+];
+
+function NodeColorPicker({ nodeId, currentColor }: { nodeId: string; currentColor: string }) {
+  const updateNodeData = useEditorStore((s) => s.updateNodeData);
+  return (
+    <div>
+      <label className="text-xs font-medium text-muted-foreground">Color</label>
+      <div className="grid grid-cols-5 gap-1.5 mt-1">
+        {NODE_COLOR_PRESETS.map((preset) => (
+          <button
+            key={preset.value}
+            title={preset.name}
+            onClick={() => updateNodeData(nodeId, { nodeColor: preset.value })}
+            className={`w-full aspect-square rounded-md border-2 transition-all
+              ${currentColor === preset.value ? "border-foreground scale-110" : "border-transparent hover:scale-105"}`}
+            style={{ backgroundColor: preset.value }}
+          />
+        ))}
+      </div>
     </div>
   );
 }

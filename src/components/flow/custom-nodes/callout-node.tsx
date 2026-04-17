@@ -59,8 +59,8 @@ export function CalloutNode({ data, selected }: NodeProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const pointerDir: PointerDirection = d.pointerDirection ?? "bottom";
-  const bgColor = d.bgColor ?? "#fefce8";
-  const borderColor = d.borderColor ?? "#facc15";
+  const bgColor = d.bgColor ?? "#f3f4f6";
+  const borderColor = d.borderColor ?? "#9ca3af";
 
   useEffect(() => {
     setText(d.label);

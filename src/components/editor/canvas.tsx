@@ -298,27 +298,11 @@ function CanvasInner() {
         <MiniMap
           position="bottom-right"
           nodeColor={(node) => {
-            switch (node.type) {
-              case "service": return "#3b82f6";
-              case "database": return "#22c55e";
-              case "queue": return "#f97316";
-              case "cache": return "#a855f7";
-              case "load-balancer": return "#f59e0b";
-              case "cdn": return "#0ea5e9";
-              case "storage": return "#14b8a6";
-              case "client": return "#6366f1";
-              case "function": return "#f43f5e";
-              case "gateway": return "#06b6d4";
-              case "cloud": return "#38bdf8";
-              case "security": return "#f87171";
-              case "server": return "#64748b";
-              case "application": return "#8b5cf6";
-              case "api": return "#f59e0b";
-              case "text": return "transparent";
-              case "callout": return "#facc15";
-              case "group": return "#818cf8";
-              default: return "#94a3b8";
-            }
+            if (node.type === "text") return "transparent";
+            const data = node.data as Record<string, unknown>;
+            if (node.type === "callout") return (data.borderColor as string) ?? "#9ca3af";
+            if (node.type === "group") return (data.borderColor as string) ?? "#9ca3af";
+            return (data.nodeColor as string) ?? "#9ca3af";
           }}
         />
       </ReactFlow>

@@ -6,13 +6,15 @@ export function NodeIcon({
   logo,
   FallbackIcon,
   className,
+  style,
 }: {
   logo?: string;
   FallbackIcon: LucideIcon;
   className: string;
+  style?: React.CSSProperties;
 }) {
   if (logo) {
     return <img src={logo} alt="" className="w-6 h-6 flex-shrink-0 object-contain" />;
   }
-  return <FallbackIcon className={className} />;
+  return <FallbackIcon className={className} style={style} />;
 }

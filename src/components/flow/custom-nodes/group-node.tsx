@@ -1,6 +1,7 @@
 "use client";
 
 import { NodeResizer, type NodeProps } from "@xyflow/react";
+import { useTheme } from "@/components/theme-provider";
 
 interface GroupData {
   label: string;
@@ -24,7 +25,8 @@ export function GroupNode({ data, selected }: NodeProps) {
   const d = data as GroupData;
   const align = (d.labelAlign as string) ?? "left";
   const borderStyle = (d.borderStyle as string) ?? "dashed";
-  const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const borderColor = (d.borderColor as string) ?? (isDark ? DARK_BORDER : LIGHT_BORDER);
   const fillColor = (d.fillColor as string) ?? (isDark ? DARK_FILL : LIGHT_FILL);
   const highlightColor = d.highlightColor as string | undefined;

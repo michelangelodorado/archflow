@@ -15,15 +15,18 @@ interface NodeData {
 export function LoadBalancerNode({ data, selected }: NodeProps) {
   const d = data as NodeData;
   const logo = d.logo as string | undefined;
+  const nodeColor = (d.nodeColor as string) ?? "#9ca3af";
   return (
     <>
-      <NodeHandles color="#fbbf24" dualSides={(d.dualSides as Side[]) ?? []} />
-      <div className={`px-4 py-3 rounded-lg border-2 bg-card shadow-sm min-w-[160px] min-h-[60px] h-full text-center flex flex-col justify-center items-center
-        ${selected ? "border-primary ring-2 ring-primary/20" : "border-amber-300"}`}
+      <NodeHandles color={nodeColor} dualSides={(d.dualSides as Side[]) ?? []} />
+      <div
+        className={`px-4 py-3 rounded-lg border-2 bg-card shadow-sm min-w-[160px] min-h-[60px] h-full text-center flex flex-col justify-center items-center
+          ${selected ? "border-primary ring-2 ring-primary/20" : ""}`}
+        style={!selected ? { borderColor: nodeColor + "60" } : undefined}
       >
         <NodeResizer isVisible={!!selected} minWidth={160} minHeight={60} />
         <div className="flex items-center gap-2 justify-center">
-          <NodeIcon logo={logo} FallbackIcon={Scale} className="w-4 h-4 text-amber-500 flex-shrink-0" />
+          <NodeIcon logo={logo} FallbackIcon={Scale} className="w-4 h-4 flex-shrink-0" style={{ color: nodeColor }} />
           <span className="text-sm font-medium text-card-foreground">{d.label}</span>
         </div>
         {d.properties?.technology && (
