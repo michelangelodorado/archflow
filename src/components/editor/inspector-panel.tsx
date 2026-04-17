@@ -348,6 +348,44 @@ export function InspectorPanel() {
       );
     }
 
+    // --- Icon node inspector ---
+    if (data.kind === "icon") {
+      return (
+        <div className="w-64 border-l border-border bg-background p-4 shrink-0 overflow-y-auto">
+          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            Icon Inspector
+          </h2>
+          <div className="space-y-3">
+            <NodeColorPicker nodeId={selectedNode.id} currentColor={(data.nodeColor as string) ?? "#9ca3af"} />
+            <IconPickerField nodeId={selectedNode.id} currentIcon={(data.icon as string) ?? ""} />
+            <LogoField nodeId={selectedNode.id} currentLogo={(data.logo as string) ?? ""} />
+            {groupNodes.length > 0 && (
+              <div className="pt-2 border-t border-border">
+                <label className="text-xs font-medium text-muted-foreground">Group</label>
+                <select
+                  value={selectedNode.parentId ?? ""}
+                  onChange={(e) => setNodeParent(selectedNode.id, e.target.value || null)}
+                  className="mt-1 w-full px-3 py-1.5 text-sm bg-background border border-border rounded-md"
+                >
+                  <option value="">None</option>
+                  {groupNodes.map((g) => (
+                    <option key={g.id} value={g.id}>
+                      {(g.data as Record<string, unknown>).label as string}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <div className="pt-2 border-t border-border">
+              <Button variant="destructive" size="sm" onClick={() => removeNode(selectedNode.id)}>
+                Delete Icon
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     // --- Regular node inspector ---
     return (
       <div className="w-64 border-l border-border bg-background p-4 shrink-0 overflow-y-auto">

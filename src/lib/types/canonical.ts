@@ -28,6 +28,7 @@ export type EntityKind =
   | "api"
   | "text"
   | "callout"
+  | "icon"
   | "group"
   | "generic";
 

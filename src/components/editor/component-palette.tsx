@@ -24,6 +24,7 @@ import {
   Webhook,
   Type,
   MessageSquareQuote,
+  Image,
   Search,
 } from "lucide-react";
 
@@ -56,6 +57,7 @@ const paletteItems: PaletteItem[] = [
   { kind: "function", label: "Function", lightColor: "border-gray-300 bg-gray-50", darkColor: "border-gray-600 bg-gray-900", icon: SquareFunction, lightIconColor: "text-gray-500", darkIconColor: "text-gray-400" },
   { kind: "text", label: "Text", lightColor: "border-gray-300 bg-gray-50", darkColor: "border-gray-600 bg-gray-900", icon: Type, lightIconColor: "text-gray-500", darkIconColor: "text-gray-400" },
   { kind: "callout", label: "Callout", lightColor: "border-gray-300 bg-gray-50", darkColor: "border-gray-600 bg-gray-900", icon: MessageSquareQuote, lightIconColor: "text-gray-500", darkIconColor: "text-gray-400" },
+  { kind: "icon", label: "Icon", lightColor: "border-gray-300 bg-gray-50", darkColor: "border-gray-600 bg-gray-900", icon: Image, lightIconColor: "text-gray-500", darkIconColor: "text-gray-400" },
   { kind: "generic", label: "Generic", lightColor: "border-gray-300 bg-gray-50", darkColor: "border-gray-600 bg-gray-900", icon: LayoutGrid, lightIconColor: "text-gray-500", darkIconColor: "text-gray-400" },
 ];
 

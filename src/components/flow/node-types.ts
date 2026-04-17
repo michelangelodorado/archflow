@@ -17,6 +17,7 @@ import { ApiNode } from "./custom-nodes/api-node";
 import { TextNode } from "./custom-nodes/text-node";
 import { GroupNode } from "./custom-nodes/group-node";
 import { CalloutNode } from "./custom-nodes/callout-node";
+import { IconNode } from "./custom-nodes/icon-node";
 import { AnimatedEdge } from "./custom-edges/animated-edge";
 import { TunnelEdge } from "./custom-edges/tunnel-edge";
 import type { NodeTypes, EdgeTypes } from "@xyflow/react";
@@ -40,6 +41,7 @@ export const nodeTypes: NodeTypes = {
   api: ApiNode,
   text: TextNode,
   callout: CalloutNode,
+  icon: IconNode,
   group: GroupNode,
 };
 

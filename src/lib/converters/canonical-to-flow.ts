@@ -224,7 +224,7 @@ function entityKindToNodeType(kind: string): string {
   const supported = [
     "service", "database", "queue", "cache",
     "load-balancer", "cdn", "cloud", "security", "storage", "client", "function", "gateway", "group",
-    "server", "application", "api", "text", "callout", "generic",
+    "server", "application", "api", "text", "callout", "icon", "generic",
   ];
   return supported.includes(kind) ? kind : "generic";
 }

@@ -219,6 +219,7 @@ function CanvasInner() {
         storage: "storage",
         text: "text",
         callout: "callout",
+        icon: "icon",
         group: "group",
         generic: "generic",
       };
@@ -227,13 +228,16 @@ function CanvasInner() {
       const isGroup = kind === "group";
       const isText = kind === "text";
       const isCallout = kind === "callout";
+      const isIcon = kind === "icon";
       const defaultLabel = isGroup
         ? "New Group"
         : isText
           ? "Double-click to edit"
           : isCallout
             ? "Callout"
-            : kind.charAt(0).toUpperCase() + kind.slice(1);
+            : isIcon
+              ? ""
+              : kind.charAt(0).toUpperCase() + kind.slice(1);
       const newNode = {
         id: `node-${Date.now()}`,
         type: kindToType[kind] || "generic",
