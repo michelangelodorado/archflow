@@ -1,11 +1,15 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { NodeResizer, type NodeProps } from "@xyflow/react";
+import type { NodeProps } from "@xyflow/react";
 
 interface TextData {
   label: string;
   kind: string;
+  rotation?: number;
+  bold?: boolean;
+  italic?: boolean;
+  fontSize?: number;
   properties: { [key: string]: unknown };
   [key: string]: unknown;
 }
@@ -32,12 +36,22 @@ export function TextNode({ data, selected }: NodeProps) {
     d.label = text || "Text";
   }, [text, d]);
 
+  const rotation = d.rotation ?? 0;
+  const fontWeight = d.bold ? "bold" : undefined;
+  const fontStyle = d.italic ? "italic" : undefined;
+  const fontSize = d.fontSize ?? 14;
+
   return (
     <div
       className={`min-w-[80px] min-h-[30px] h-full ${selected ? "ring-2 ring-primary/20 rounded" : ""}`}
+      style={{
+        ...(rotation ? { transform: `rotate(${rotation}deg)` } : {}),
+        fontWeight,
+        fontStyle,
+        fontSize,
+      }}
       onDoubleClick={() => setEditing(true)}
     >
-      <NodeResizer isVisible={!!selected} minWidth={80} minHeight={30} />
       {editing ? (
         <textarea
           ref={textareaRef}
@@ -50,10 +64,11 @@ export function TextNode({ data, selected }: NodeProps) {
               commit();
             }
           }}
-          className="w-full h-full bg-transparent text-sm text-foreground resize-none outline-none p-1"
+          className="w-full h-full bg-transparent text-foreground resize-none outline-none p-1"
+          style={{ fontWeight, fontStyle, fontSize }}
         />
       ) : (
-        <div className="text-sm text-foreground whitespace-pre-wrap p-1">
+        <div className="text-foreground whitespace-pre-wrap p-1">
           {d.label}
         </div>
       )}

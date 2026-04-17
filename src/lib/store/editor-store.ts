@@ -41,6 +41,7 @@ interface EditorState {
   // Flows (saved highlight sets)
   flows: DiagramFlow[];
   activeFlowId: string | null;
+  editingFlowId: string | null;
 
   // Actions
   loadDiagram: (id: string, diagram: CanonicalDiagram) => void;
@@ -83,6 +84,8 @@ interface EditorState {
   // Flow actions
   saveFlow: (name: string) => void;
   activateFlow: (id: string | null) => void;
+  setEditingFlowId: (id: string | null) => void;
+  updateFlowNodes: (id: string, nodeIds: string[]) => void;
   removeFlow: (id: string) => void;
 }
 
@@ -106,6 +109,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   isDirty: false,
   flows: [],
   activeFlowId: null,
+  editingFlowId: null,
 
   loadDiagram: (id, diagram) => {
     const { nodes, edges } = canonicalToFlow(diagram);
@@ -426,6 +430,18 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
   activateFlow: (id: string | null) => {
     set({ activeFlowId: id });
+  },
+
+  setEditingFlowId: (id: string | null) => {
+    set({ editingFlowId: id });
+  },
+
+  updateFlowNodes: (id: string, nodeIds: string[]) => {
+    const { flows } = get();
+    set({
+      flows: flows.map((f) => (f.id === id ? { ...f, nodeIds } : f)),
+      isDirty: true,
+    });
   },
 
   removeFlow: (id: string) => {

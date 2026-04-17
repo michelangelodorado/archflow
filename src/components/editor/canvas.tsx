@@ -78,11 +78,15 @@ function CanvasInner() {
     if (!activeFlow) return nodes;
     const hlSet = new Set(activeFlow.nodeIds);
     const color = activeFlow.color ?? "#3b82f6";
-    return nodes.map((n) =>
-      hlSet.has(n.id)
-        ? { ...n, style: { ...n.style, opacity: 1, filter: `drop-shadow(0 0 6px ${color}80)`, transition: "opacity 0.3s ease, filter 0.3s ease" } }
-        : { ...n, style: { ...n.style, opacity: 0.15, filter: "none", transition: "opacity 0.3s ease, filter 0.3s ease" } },
-    );
+    return nodes.map((n) => {
+      const isGroup = (n.data as Record<string, unknown>).kind === "group";
+      if (hlSet.has(n.id)) {
+        return isGroup
+          ? { ...n, data: { ...n.data, highlightColor: color }, style: { ...n.style, opacity: 1, filter: "none", transition: "opacity 0.3s ease, filter 0.3s ease" } }
+          : { ...n, style: { ...n.style, opacity: 1, filter: `drop-shadow(0 0 6px ${color}80)`, transition: "opacity 0.3s ease, filter 0.3s ease" } };
+      }
+      return { ...n, data: { ...n.data, highlightColor: undefined }, style: { ...n.style, opacity: 0.15, filter: "none", transition: "opacity 0.3s ease, filter 0.3s ease" } };
+    });
   }, [nodes, activeFlow]);
 
   const displayEdges = useMemo(() => {
@@ -98,14 +102,19 @@ function CanvasInner() {
     });
   }, [edges, activeFlow]);
 
+  const editingFlowId = useEditorStore((s) => s.editingFlowId);
+
   const handleNodesChange = useCallback(
     (changes: NodeChange[]) => {
-      onNodesChange(changes);
-      if (changes.some((c) => c.type !== "select" && c.type !== "dimensions")) {
+      const filtered = editingFlowId
+        ? changes.filter((c) => c.type !== "select")
+        : changes;
+      if (filtered.length > 0) onNodesChange(filtered);
+      if (filtered.some((c) => c.type !== "select" && c.type !== "dimensions")) {
         setDirty(true);
       }
     },
-    [onNodesChange, setDirty],
+    [onNodesChange, setDirty, editingFlowId],
   );
 
   const handleEdgesChange = useCallback(
@@ -148,9 +157,15 @@ function CanvasInner() {
 
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: { id: string }) => {
+      if (editingFlowId) {
+        setLocalNodes((nds) =>
+          nds.map((n) => (n.id === node.id ? { ...n, selected: !n.selected } : n)),
+        );
+        return;
+      }
       selectNode(node.id);
     },
-    [selectNode],
+    [selectNode, editingFlowId, setLocalNodes],
   );
 
   const onEdgeClick = useCallback(
@@ -258,6 +273,7 @@ function CanvasInner() {
         snapToGrid
         snapGrid={[20, 20]}
         fitView
+        fitViewOptions={{ padding: 0.3, maxZoom: 0.85 }}
         deleteKeyCode={null}
         className="!bg-canvas"
       >

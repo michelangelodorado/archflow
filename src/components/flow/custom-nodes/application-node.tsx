@@ -3,6 +3,7 @@
 import { NodeResizer, type NodeProps } from "@xyflow/react";
 import { AppWindow } from "lucide-react";
 import { NodeHandles, type Side } from "./node-handles";
+import { NodeIcon } from "./node-icon";
 
 interface NodeData {
   label: string;
@@ -13,6 +14,7 @@ interface NodeData {
 
 export function ApplicationNode({ data, selected }: NodeProps) {
   const d = data as NodeData;
+  const logo = d.logo as string | undefined;
   return (
     <>
       <NodeHandles color="#8b5cf6" dualSides={(d.dualSides as Side[]) ?? []} />
@@ -21,7 +23,7 @@ export function ApplicationNode({ data, selected }: NodeProps) {
       >
         <NodeResizer isVisible={!!selected} minWidth={160} minHeight={60} />
         <div className="flex items-center gap-2 justify-center">
-          <AppWindow className="w-4 h-4 text-violet-500 flex-shrink-0" />
+          <NodeIcon logo={logo} FallbackIcon={AppWindow} className="w-4 h-4 text-violet-500 flex-shrink-0" />
           <span className="text-sm font-medium text-card-foreground">{d.label}</span>
         </div>
         {d.properties?.technology && (

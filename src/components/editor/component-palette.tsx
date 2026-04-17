@@ -38,7 +38,7 @@ interface PaletteItem {
 }
 
 const paletteItems: PaletteItem[] = [
-  { kind: "group", label: "Group", lightColor: "border-indigo-300 bg-indigo-50", darkColor: "border-indigo-700 bg-indigo-950", icon: Layers, lightIconColor: "text-indigo-500", darkIconColor: "text-indigo-400" },
+  { kind: "group", label: "Group", lightColor: "border-gray-400 bg-gray-100", darkColor: "border-gray-600 bg-gray-900", icon: Layers, lightIconColor: "text-gray-500", darkIconColor: "text-gray-400" },
   { kind: "service", label: "Service", lightColor: "border-blue-300 bg-blue-50", darkColor: "border-blue-700 bg-blue-950", icon: Box, lightIconColor: "text-blue-500", darkIconColor: "text-blue-400" },
   { kind: "database", label: "Database", lightColor: "border-green-300 bg-green-50", darkColor: "border-green-700 bg-green-950", icon: Database, lightIconColor: "text-green-500", darkIconColor: "text-green-400" },
   { kind: "queue", label: "Queue", lightColor: "border-orange-300 bg-orange-50", darkColor: "border-orange-700 bg-orange-950", icon: ListOrdered, lightIconColor: "text-orange-500", darkIconColor: "text-orange-400" },

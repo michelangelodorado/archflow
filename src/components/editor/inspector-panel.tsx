@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { X, Upload } from "lucide-react";
 import { useEditorStore } from "@/lib/store/editor-store";
 import { iconMap, iconNames } from "@/components/flow/icon-picker";
 
@@ -30,7 +31,119 @@ export function InspectorPanel() {
     const data = selectedNode.data as Record<string, unknown>;
     const properties = (data.properties ?? {}) as Record<string, string>;
     const isGroup = data.kind === "group";
+    const isText = data.kind === "text";
     const isCallout = data.kind === "callout";
+
+    // --- Text node inspector ---
+    if (isText) {
+      const rotation = (data.rotation as number) ?? 0;
+      const isBold = (data.bold as boolean) ?? false;
+      const isItalic = (data.italic as boolean) ?? false;
+      return (
+        <div className="w-64 border-l border-border bg-background p-4 shrink-0 overflow-y-auto">
+          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            Text Inspector
+          </h2>
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Label</label>
+              <Input
+                value={(data.label as string) ?? ""}
+                onChange={(e) => updateNodeData(selectedNode.id, { label: e.target.value })}
+                className="mt-1"
+                placeholder="Text content"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Style</label>
+              <div className="flex gap-1.5 mt-1">
+                <button
+                  onClick={() => updateNodeData(selectedNode.id, { bold: !isBold })}
+                  className={`flex-1 px-2 py-1.5 text-xs font-bold rounded-md border transition-colors
+                    ${isBold
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-background text-foreground border-border hover:bg-muted"}`}
+                >
+                  Bold
+                </button>
+                <button
+                  onClick={() => updateNodeData(selectedNode.id, { italic: !isItalic })}
+                  className={`flex-1 px-2 py-1.5 text-xs italic rounded-md border transition-colors
+                    ${isItalic
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-background text-foreground border-border hover:bg-muted"}`}
+                >
+                  Italic
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Font Size</label>
+              <div className="flex items-center gap-2 mt-1">
+                <input
+                  type="range"
+                  min={8}
+                  max={72}
+                  step={1}
+                  value={(data.fontSize as number) ?? 14}
+                  onChange={(e) => updateNodeData(selectedNode.id, { fontSize: Number(e.target.value) })}
+                  className="flex-1"
+                />
+                <span className="text-xs text-muted-foreground w-10 text-right">{(data.fontSize as number) ?? 14}px</span>
+              </div>
+              <div className="flex gap-1.5 mt-1.5">
+                {[12, 14, 18, 24, 32, 48].map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => updateNodeData(selectedNode.id, { fontSize: size })}
+                    className={`flex-1 px-1 py-1 text-xs font-medium rounded-md border transition-colors
+                      ${(data.fontSize as number ?? 14) === size
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-background text-foreground border-border hover:bg-muted"}`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Rotation</label>
+              <div className="flex items-center gap-2 mt-1">
+                <input
+                  type="range"
+                  min={-180}
+                  max={180}
+                  step={1}
+                  value={rotation}
+                  onChange={(e) => updateNodeData(selectedNode.id, { rotation: Number(e.target.value) })}
+                  className="flex-1"
+                />
+                <span className="text-xs text-muted-foreground w-10 text-right">{rotation}°</span>
+              </div>
+              <div className="flex gap-1.5 mt-1.5">
+                {[0, 45, 90, -45, -90].map((deg) => (
+                  <button
+                    key={deg}
+                    onClick={() => updateNodeData(selectedNode.id, { rotation: deg })}
+                    className={`flex-1 px-1 py-1 text-xs font-medium rounded-md border transition-colors
+                      ${rotation === deg
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-background text-foreground border-border hover:bg-muted"}`}
+                  >
+                    {deg}°
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="pt-2 border-t border-border">
+              <Button variant="destructive" size="sm" onClick={() => removeNode(selectedNode.id)}>
+                Delete Text
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     // --- Callout node inspector ---
     if (isCallout) {
@@ -183,11 +296,11 @@ export function InspectorPanel() {
               <div className="flex items-center gap-2 mt-1">
                 <input
                   type="color"
-                  value={(data.borderColor as string) ?? "#a5b4fc"}
+                  value={(data.borderColor as string) ?? "#9ca3af"}
                   onChange={(e) => updateNodeData(selectedNode.id, { borderColor: e.target.value })}
                   className="w-8 h-8 rounded border border-border cursor-pointer"
                 />
-                <span className="text-xs text-muted-foreground">{(data.borderColor as string) ?? "#a5b4fc"}</span>
+                <span className="text-xs text-muted-foreground">{(data.borderColor as string) ?? "#9ca3af"}</span>
               </div>
             </div>
             <div>
@@ -195,11 +308,11 @@ export function InspectorPanel() {
               <div className="flex items-center gap-2 mt-1">
                 <input
                   type="color"
-                  value={(data.fillColor as string) ?? "#eef2ff"}
+                  value={(data.fillColor as string) ?? "#f3f4f6"}
                   onChange={(e) => updateNodeData(selectedNode.id, { fillColor: e.target.value })}
                   className="w-8 h-8 rounded border border-border cursor-pointer"
                 />
-                <span className="text-xs text-muted-foreground">{(data.fillColor as string) ?? "#eef2ff"}</span>
+                <span className="text-xs text-muted-foreground">{(data.fillColor as string) ?? "#f3f4f6"}</span>
               </div>
             </div>
             <div>
@@ -258,6 +371,8 @@ export function InspectorPanel() {
           </div>
 
           {data.kind === "generic" && <IconPickerField nodeId={selectedNode.id} currentIcon={(data.icon as string) ?? ""} />}
+
+          <LogoField nodeId={selectedNode.id} currentLogo={(data.logo as string) ?? ""} />
 
           <div>
             <label className="text-xs font-medium text-muted-foreground">Technology</label>
@@ -450,6 +565,51 @@ export function InspectorPanel() {
   }
 
   return null;
+}
+
+function LogoField({ nodeId, currentLogo }: { nodeId: string; currentLogo: string }) {
+  const updateNodeData = useEditorStore((s) => s.updateNodeData);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      updateNodeData(nodeId, { logo: reader.result as string });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  return (
+    <div>
+      <label className="text-xs font-medium text-muted-foreground">Logo</label>
+      {currentLogo ? (
+        <div className="mt-1 flex items-center gap-2">
+          <img src={currentLogo} alt="" className="w-6 h-6 object-contain rounded" />
+          <button
+            onClick={() => updateNodeData(nodeId, { logo: undefined })}
+            className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground"
+            title="Remove logo"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      ) : (
+        <div className="mt-1 flex gap-1">
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs bg-background border border-border rounded-md hover:bg-muted transition-colors text-muted-foreground"
+          >
+            <Upload className="w-3.5 h-3.5" />
+            Upload image
+          </button>
+        </div>
+      )}
+      <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
+    </div>
+  );
 }
 
 function IconPickerField({ nodeId, currentIcon }: { nodeId: string; currentIcon: string }) {

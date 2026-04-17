@@ -3,6 +3,7 @@
 import { NodeResizer, type NodeProps } from "@xyflow/react";
 import { Box } from "lucide-react";
 import { NodeHandles, type Side } from "./node-handles";
+import { NodeIcon } from "./node-icon";
 
 interface ServiceData {
   label: string;
@@ -13,6 +14,7 @@ interface ServiceData {
 
 export function ServiceNode({ data, selected }: NodeProps) {
   const d = data as ServiceData;
+  const logo = d.logo as string | undefined;
 
   return (
     <>
@@ -22,7 +24,7 @@ export function ServiceNode({ data, selected }: NodeProps) {
       >
         <NodeResizer isVisible={!!selected} minWidth={160} minHeight={60} />
         <div className="flex items-center gap-2 justify-center">
-          <Box className="w-4 h-4 text-blue-500 flex-shrink-0" />
+          <NodeIcon logo={logo} FallbackIcon={Box} className="w-4 h-4 text-blue-500 flex-shrink-0" />
           <span className="text-sm font-medium text-card-foreground">{d.label}</span>
         </div>
         {d.properties?.technology && (

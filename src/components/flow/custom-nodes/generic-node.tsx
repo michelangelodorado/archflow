@@ -4,6 +4,7 @@ import { NodeResizer, type NodeProps } from "@xyflow/react";
 import { LayoutGrid } from "lucide-react";
 import { NodeHandles, type Side } from "./node-handles";
 import { iconMap } from "@/components/flow/icon-picker";
+import { NodeIcon } from "./node-icon";
 
 interface NodeData {
   label: string;
@@ -16,6 +17,7 @@ export function GenericNode({ data, selected }: NodeProps) {
   const d = data as NodeData;
   const iconKey = d.icon as string | undefined;
   const Icon = (iconKey && iconMap[iconKey]) || LayoutGrid;
+  const logo = d.logo as string | undefined;
   return (
     <>
       <NodeHandles color="#9ca3af" dualSides={(d.dualSides as Side[]) ?? []} />
@@ -24,7 +26,7 @@ export function GenericNode({ data, selected }: NodeProps) {
       >
         <NodeResizer isVisible={!!selected} minWidth={160} minHeight={60} />
         <div className="flex items-center gap-2 justify-center">
-          <Icon className="w-4 h-4 text-card-muted flex-shrink-0" />
+          <NodeIcon logo={logo} FallbackIcon={Icon} className="w-4 h-4 text-card-muted flex-shrink-0" />
           <span className="text-sm font-medium text-card-foreground">{d.label}</span>
         </div>
         {d.properties?.technology && (
