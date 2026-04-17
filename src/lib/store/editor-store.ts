@@ -40,6 +40,7 @@ interface EditorState {
 
   // Viewport (pan/zoom)
   viewport: { x: number; y: number; zoom: number };
+  handlesVisible: boolean;
 
   // Flows (saved highlight sets)
   flows: DiagramFlow[];
@@ -64,6 +65,7 @@ interface EditorState {
   updateEdgeArrow: (id: string, arrowEnd: string) => void;
   updateEdgeType: (id: string, edgeType: string) => void;
   setViewport: (viewport: { x: number; y: number; zoom: number }) => void;
+  toggleHandlesVisible: () => void;
   setNodeParent: (nodeId: string, parentId: string | null) => void;
   syncToCanonical: () => void;
   togglePalette: () => void;
@@ -113,6 +115,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   isSaving: false,
   isDirty: false,
   viewport: { x: 0, y: 0, zoom: 1 },
+  handlesVisible: true,
   flows: [],
   activeFlowId: null,
   editingFlowId: null,
@@ -241,6 +244,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     })),
 
   setViewport: (viewport) => set({ viewport }),
+  toggleHandlesVisible: () => set((s) => ({ handlesVisible: !s.handlesVisible })),
 
   setNodeParent: (nodeId, parentId) =>
     set((state) => {

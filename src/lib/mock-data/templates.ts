@@ -30,8 +30,8 @@ export const microservicesTemplate: CanonicalDiagram = {
     { id: "auth-db", kind: "database", label: "Auth DB", properties: { technology: "PostgreSQL" } },
     { id: "user-db", kind: "database", label: "User DB", properties: { technology: "PostgreSQL" } },
     { id: "order-db", kind: "database", label: "Order DB", properties: { technology: "MongoDB" } },
-    { id: "msg-queue", kind: "queue", label: "Message Queue", properties: { technology: "RabbitMQ" } },
-    { id: "cache", kind: "cache", label: "Cache", properties: { technology: "Redis" } },
+    { id: "msg-queue", kind: "generic", label: "Message Queue", properties: { technology: "RabbitMQ" } },
+    { id: "cache", kind: "generic", label: "Cache", properties: { technology: "Redis" } },
   ],
   relationships: [
     { id: "r1", from: "client", to: "gateway", kind: "sync", label: "HTTPS", traffic: { protocol: "http", direction: "bidirectional", label: "REST API", animated: true } },
@@ -75,10 +75,10 @@ export const eventDrivenTemplate: CanonicalDiagram = {
   entities: [
     { id: "producer-1", kind: "service", label: "Order Producer", properties: { technology: "Java" } },
     { id: "producer-2", kind: "service", label: "Payment Producer", properties: { technology: "Go" } },
-    { id: "event-bus", kind: "queue", label: "Event Bus", properties: { technology: "Apache Kafka" } },
+    { id: "event-bus", kind: "generic", label: "Event Bus", properties: { technology: "Apache Kafka" } },
     { id: "consumer-1", kind: "service", label: "Notification Consumer", properties: { technology: "Node.js" } },
     { id: "consumer-2", kind: "service", label: "Analytics Consumer", properties: { technology: "Python" } },
-    { id: "consumer-3", kind: "function", label: "Audit Logger", properties: { technology: "AWS Lambda" } },
+    { id: "consumer-3", kind: "service", label: "Audit Logger", properties: { technology: "AWS Lambda" } },
     { id: "analytics-db", kind: "database", label: "Analytics Store", properties: { technology: "ClickHouse" } },
     { id: "storage", kind: "storage", label: "Audit Logs", properties: { technology: "S3" } },
   ],

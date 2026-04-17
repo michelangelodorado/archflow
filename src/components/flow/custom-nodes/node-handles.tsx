@@ -2,6 +2,7 @@
 
 import { Fragment, useEffect } from "react";
 import { Handle, Position, useNodeId, useUpdateNodeInternals } from "@xyflow/react";
+import { useEditorStore } from "@/lib/store/editor-store";
 
 export type Side = "top" | "bottom" | "left" | "right";
 
@@ -37,7 +38,8 @@ export function NodeHandles({ color, dualSides = [] }: NodeHandlesProps) {
     }
   }, [nodeId, dualKey, updateNodeInternals]);
 
-  const s = { background: color, width: 10, height: 10, zIndex: 10 };
+  const handlesVisible = useEditorStore((state) => state.handlesVisible);
+  const s = { background: color, width: 10, height: 10, zIndex: 10, opacity: handlesVisible ? 1 : 0, transition: "opacity 0.2s ease" };
   const dualSet = new Set(dualSides);
 
   const sides: Side[] = ["top", "bottom", "left", "right"];

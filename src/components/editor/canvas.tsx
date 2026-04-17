@@ -6,6 +6,7 @@ import {
   ReactFlowProvider,
   Background,
   Controls,
+  ControlButton,
   MiniMap,
   Panel,
   ConnectionMode,
@@ -51,6 +52,8 @@ function CanvasInner() {
     viewport: storeViewport,
     flows,
     activeFlowId,
+    handlesVisible,
+    toggleHandlesVisible,
   } = useEditorStore();
 
   const hasSavedViewport = storeViewport.x !== 0 || storeViewport.y !== 0 || storeViewport.zoom !== 1;
@@ -204,10 +207,7 @@ function CanvasInner() {
       const kindToType: Record<string, string> = {
         service: "service",
         database: "database",
-        queue: "queue",
-        cache: "cache",
         gateway: "gateway",
-        function: "function",
         client: "client",
         "load-balancer": "load-balancer",
         cloud: "cloud",
@@ -295,7 +295,26 @@ function CanvasInner() {
         className="!bg-canvas"
       >
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} className="!fill-canvas-dot" />
-        <Controls position="bottom-left" />
+        <Controls position="bottom-left">
+          <ControlButton
+            onClick={toggleHandlesVisible}
+            title={handlesVisible ? "Hide handles" : "Show handles"}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+              {handlesVisible ? (
+                <>
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M12 5v2m0 10v2m-7-7h2m10 0h2" />
+                </>
+              ) : (
+                <>
+                  <circle cx="12" cy="12" r="3" strokeDasharray="4 2" opacity="0.4" />
+                  <path d="M12 5v2m0 10v2m-7-7h2m10 0h2" opacity="0.4" />
+                </>
+              )}
+            </svg>
+          </ControlButton>
+        </Controls>
         <Panel position="top-right">
           <FlowPanel />
         </Panel>

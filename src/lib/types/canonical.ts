@@ -13,13 +13,10 @@ export type DiagramType =
 export type EntityKind =
   | "service"
   | "database"
-  | "queue"
-  | "cache"
   | "load-balancer"
   | "cdn"
   | "storage"
   | "client"
-  | "function"
   | "gateway"
   | "cloud"
   | "security"
