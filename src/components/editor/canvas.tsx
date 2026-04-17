@@ -47,9 +47,13 @@ function CanvasInner() {
     selectNode,
     selectEdge,
     pushHistory,
+    setViewport,
+    viewport: storeViewport,
     flows,
     activeFlowId,
   } = useEditorStore();
+
+  const hasSavedViewport = storeViewport.x !== 0 || storeViewport.y !== 0 || storeViewport.zoom !== 1;
 
   const [nodes, setLocalNodes, onNodesChange] = useNodesState(storeNodes);
   const [edges, setLocalEdges, onEdgesChange] = useEdgesState(storeEdges);
@@ -248,6 +252,13 @@ function CanvasInner() {
     [setLocalNodes, setDirty, pushHistory, screenToFlowPosition],
   );
 
+  const onMoveEnd = useCallback(
+    (_: unknown, viewport: { x: number; y: number; zoom: number }) => {
+      setViewport(viewport);
+    },
+    [setViewport],
+  );
+
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
@@ -267,13 +278,15 @@ function CanvasInner() {
         onPaneClick={onPaneClick}
         onDrop={onDrop}
         onDragOver={onDragOver}
+        onMoveEnd={onMoveEnd}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         connectionMode={ConnectionMode.Loose}
         snapToGrid
         snapGrid={[20, 20]}
-        fitView
-        fitViewOptions={{ padding: 0.3, maxZoom: 0.85 }}
+        {...(hasSavedViewport
+          ? { defaultViewport: storeViewport }
+          : { fitView: true, fitViewOptions: { padding: 0.3, maxZoom: 0.85 } })}
         deleteKeyCode={null}
         className="!bg-canvas"
       >

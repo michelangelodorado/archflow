@@ -38,6 +38,9 @@ interface EditorState {
   isSaving: boolean;
   isDirty: boolean;
 
+  // Viewport (pan/zoom)
+  viewport: { x: number; y: number; zoom: number };
+
   // Flows (saved highlight sets)
   flows: DiagramFlow[];
   activeFlowId: string | null;
@@ -59,6 +62,8 @@ interface EditorState {
   updateEdgeAnimated: (id: string, animated: boolean) => void;
   updateEdgePathType: (id: string, pathType: string) => void;
   updateEdgeArrow: (id: string, arrowEnd: string) => void;
+  updateEdgeType: (id: string, edgeType: string) => void;
+  setViewport: (viewport: { x: number; y: number; zoom: number }) => void;
   setNodeParent: (nodeId: string, parentId: string | null) => void;
   syncToCanonical: () => void;
   togglePalette: () => void;
@@ -107,13 +112,14 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   isBottomDrawerOpen: false,
   isSaving: false,
   isDirty: false,
+  viewport: { x: 0, y: 0, zoom: 1 },
   flows: [],
   activeFlowId: null,
   editingFlowId: null,
 
   loadDiagram: (id, diagram) => {
-    const { nodes, edges } = canonicalToFlow(diagram);
-    set({ diagram, diagramId: id, nodes, edges, isDirty: false, undoStack: [], redoStack: [], canUndo: false, canRedo: false, flows: diagram.flows ?? [], activeFlowId: null });
+    const { nodes, edges, viewport } = canonicalToFlow(diagram);
+    set({ diagram, diagramId: id, nodes, edges, viewport, isDirty: false, undoStack: [], redoStack: [], canUndo: false, canRedo: false, flows: diagram.flows ?? [], activeFlowId: null });
   },
 
   setNodes: (nodes) => set({ nodes }),
@@ -220,6 +226,22 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       isDirty: true,
     })),
 
+  updateEdgeType: (id, edgeType) =>
+    set((state) => ({
+      edges: state.edges.map((e) =>
+        e.id === id
+          ? {
+              ...e,
+              type: edgeType,
+              animated: edgeType === "animated" ? e.animated : false,
+            }
+          : e,
+      ),
+      isDirty: true,
+    })),
+
+  setViewport: (viewport) => set({ viewport }),
+
   setNodeParent: (nodeId, parentId) =>
     set((state) => {
       const parent = parentId ? state.nodes.find((n) => n.id === parentId) : null;
@@ -268,10 +290,16 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     }),
 
   syncToCanonical: () => {
-    const { nodes, edges, diagram, flows } = get();
+    const { nodes, edges, diagram, flows, viewport } = get();
     if (!diagram) return;
     const updated = flowToCanonical(nodes, edges, diagram);
-    set({ diagram: { ...updated, flows } });
+    set({
+      diagram: {
+        ...updated,
+        flows,
+        layout: { ...updated.layout, viewport },
+      },
+    });
   },
 
   togglePalette: () => set((s) => ({ isPaletteOpen: !s.isPaletteOpen })),

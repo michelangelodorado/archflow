@@ -93,19 +93,27 @@ export function canonicalToNodes(diagram: CanonicalDiagram): Node[] {
 export function canonicalToEdges(diagram: CanonicalDiagram): Edge[] {
   return diagram.relationships.map((rel) => {
     const extra = (rel as unknown as Record<string, unknown>);
+    const edgeType = (extra.edgeType as string) ?? "animated";
+    const traffic = rel.traffic ?? {
+      protocol: "http" as const,
+      direction: "unidirectional" as const,
+      label: "",
+      animated: false,
+    };
+    const displayLabel = traffic.label || rel.label || "";
     return {
       id: rel.id,
       source: rel.from,
       target: rel.to,
       sourceHandle: (extra.sourceHandle as string) ?? "bottom",
       targetHandle: (extra.targetHandle as string) ?? "top",
-      type: "animated",
-      animated: rel.traffic.animated,
-      label: rel.traffic.label,
+      type: edgeType,
+      animated: edgeType === "tunnel" ? false : traffic.animated,
+      label: displayLabel,
       data: {
         kind: rel.kind,
-        traffic: rel.traffic,
-        label: rel.label,
+        traffic,
+        label: displayLabel,
         pathType: extra.pathType ?? undefined,
         arrowEnd: extra.arrowEnd ?? undefined,
       },
@@ -170,12 +178,13 @@ export function flowToCanonical(
 
   const relationships: Relationship[] = edges.map((edge) => {
     const d = edge.data as { kind?: string; label?: string; traffic?: Relationship["traffic"]; pathType?: string; arrowEnd?: string } | undefined;
+    const edgeLabel = (edge.label as string) || d?.label || "";
     const traffic: Relationship["traffic"] = d?.traffic
-      ? { ...d.traffic, label: (edge.label as string) ?? d.traffic.label, animated: edge.animated ?? d.traffic.animated }
+      ? { ...d.traffic, label: edgeLabel || d.traffic.label, animated: edge.animated ?? d.traffic.animated }
       : {
           protocol: "http" as const,
           direction: "unidirectional" as const,
-          label: (edge.label as string) ?? "",
+          label: edgeLabel,
           animated: edge.animated ?? false,
         };
     return {
@@ -183,14 +192,15 @@ export function flowToCanonical(
       from: edge.source,
       to: edge.target,
       kind: (d?.kind ?? "sync") as Relationship["kind"],
-      label: d?.label ?? "",
+      label: edgeLabel,
       traffic,
       // Persist handle connections and edge display settings
       sourceHandle: edge.sourceHandle ?? "bottom",
       targetHandle: edge.targetHandle ?? "top",
       pathType: d?.pathType,
       arrowEnd: d?.arrowEnd,
-    } as Relationship & { sourceHandle: string; targetHandle: string; pathType?: string; arrowEnd?: string };
+      edgeType: edge.type ?? "animated",
+    } as Relationship & { sourceHandle: string; targetHandle: string; pathType?: string; arrowEnd?: string; edgeType?: string };
   });
 
   return {

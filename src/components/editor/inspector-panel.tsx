@@ -8,7 +8,7 @@ import { useEditorStore } from "@/lib/store/editor-store";
 import { iconMap, iconNames } from "@/components/flow/icon-picker";
 
 export function InspectorPanel() {
-  const { nodes, edges, selectedNodeId, selectedEdgeId, updateNodeData, updateEdgeLabel, updateEdgeAnimated, updateEdgePathType, updateEdgeArrow, setNodeParent, removeNode, removeEdge } =
+  const { nodes, edges, selectedNodeId, selectedEdgeId, updateNodeData, updateEdgeLabel, updateEdgeAnimated, updateEdgePathType, updateEdgeArrow, updateEdgeType, setNodeParent, removeNode, removeEdge } =
     useEditorStore();
 
   const groupNodes = nodes.filter((n) => (n.data as Record<string, unknown>).kind === "group");
@@ -476,6 +476,26 @@ export function InspectorPanel() {
               className="mt-1"
               placeholder="e.g. REST API, gRPC"
             />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Edge Type</label>
+            <div className="flex gap-1.5 mt-1">
+              {(["animated", "tunnel"] as const).map((type) => {
+                const current = (selectedEdge.type as string) ?? "animated";
+                return (
+                  <button
+                    key={type}
+                    onClick={() => updateEdgeType(selectedEdge.id, type)}
+                    className={`flex-1 px-2 py-1.5 text-xs font-medium rounded-md border transition-colors capitalize
+                      ${current === type
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-background text-foreground border-border hover:bg-muted"}`}
+                  >
+                    {type === "tunnel" ? "Tunnel" : "Default"}
+                  </button>
+                );
+              })}
+            </div>
           </div>
           <div>
             <label className="text-xs font-medium text-muted-foreground">Kind</label>
